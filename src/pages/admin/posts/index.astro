@@ -1,0 +1,40 @@
+---
+import { env } from "cloudflare:workers";
+import Admin from "../../../layouts/Admin.astro";
+import { listAll } from "../../../lib/posts";
+
+export const prerender = false;
+const posts = await listAll(env.DB);
+const fmt = (iso: string | null) =>
+  iso ? new Date(iso).toLocaleDateString("en-NZ", { timeZone: "Pacific/Auckland", day: "numeric", month: "short", year: "numeric" }) : "—";
+---
+
+<Admin title="Posts" active="posts">
+  <div class="page-head">
+    <h1>Posts</h1>
+    <a class="btn primary" href="/admin/posts/new">New post</a>
+  </div>
+  {
+    posts.length ? (
+      <table class="table">
+        <thead>
+          <tr><th>Title</th><th>Kind</th><th>Languages</th><th>Status</th><th>Date</th><th /></tr>
+        </thead>
+        <tbody>
+          {posts.map((p) => (
+            <tr>
+              <td><a class="u" href={`/admin/posts/${p.id}`}>{p.i18n.en?.title || p.i18n.zh?.title || "(untitled)"}</a></td>
+              <td>{p.kind}</td>
+              <td>{(["en", "zh"] as const).filter((l) => p.i18n[l]?.title).join(" · ") || "—"}</td>
+              <td><span class={`pill ${p.status}`}>{p.status}</span></td>
+              <td>{fmt(p.published_at ?? p.updated_at)}</td>
+              <td class="num">{p.status === "published" && <a class="muted" href={`/writing/${p.slug}`} target="_blank" rel="noopener">View ↗</a>}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    ) : (
+      <p class="empty-note">No posts yet. Words, a YouTube video, or an audio link — each gets a cover.</p>
+    )
+  }
+</Admin>

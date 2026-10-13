@@ -1,0 +1,12 @@
+# docker compose up -d → http://localhost:4321 (dev server with local D1/R2 kept in .wrangler/).
+services:
+  web:
+    build: .
+    user: "${OMT_UID:-1000}:${OMT_GID:-1000}"
+    environment:
+      HOME: /tmp
+      ASTRO_TELEMETRY_DISABLED: "1"
+    ports:
+      - "4321:4321"
+    volumes:
+      - ./.wrangler:/app/.wrangler

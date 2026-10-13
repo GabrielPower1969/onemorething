@@ -1,0 +1,108 @@
+---
+/**
+ * YouTube click-to-load. Nothing is requested from Google until the visitor presses play:
+ * the poster is our own copy in R2 (copied when the post was saved), and the player is
+ * youtube-nocookie.com. The 16:9 box is reserved up front (no layout shift).
+ */
+import Icon from "./Icon.astro";
+import { useT, type Locale } from "../i18n";
+import { youTubeEmbedUrl, youTubeWatchUrl } from "../lib/youtube";
+
+interface Props {
+  youtubeId: string;
+  title: string;
+  coverKey?: string | null;
+  lang: Locale;
+  trackId?: string;
+  priority?: boolean;
+}
+const { youtubeId, title, coverKey, lang, trackId, priority = false } = Astro.props;
+const t = useT(lang);
+---
+
+<div class="video" data-video-embed={youTubeEmbedUrl(youtubeId)} data-video-title={title}>
+  <button
+    class="video-play"
+    type="button"
+    aria-label={t("post.play", { title })}
+    data-track-play={trackId ?? youtubeId.toLowerCase().replace(/[^a-z0-9-]/g, "-")}
+  >
+    {
+      coverKey ? (
+        <img src={`/media/${coverKey}`} alt="" loading={priority ? "eager" : "lazy"} decoding="async" />
+      ) : (
+        <span class="video-blank" />
+      )
+    }
+    <span class="play-glyph" aria-hidden="true"><Icon name="play" size={28} /></span>
+  </button>
+  <noscript><a href={youTubeWatchUrl(youtubeId)}>{t("media.videoFallback")}</a></noscript>
+</div>
+
+<style>
+  .video {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #141414;
+    overflow: hidden;
+  }
+  .video-play,
+  .video :global(iframe) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .video-play img,
+  .video-blank {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(1) contrast(1.05);
+  }
+  .video-blank {
+    background: linear-gradient(180deg, #2a2a2a, #0d0d0d);
+  }
+  .play-glyph {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 80px;
+    height: 80px;
+    margin: -40px 0 0 -40px;
+    border-radius: 50%;
+    background: var(--paper);
+    color: var(--ink);
+    display: grid;
+    place-items: center;
+    transition: transform 240ms var(--ease);
+  }
+  .play-glyph :global(svg) {
+    transform: translateX(2px);
+  }
+  .video-play:hover .play-glyph,
+  .video-play:focus-visible .play-glyph {
+    transform: scale(1.06);
+  }
+  .video-play:focus-visible {
+    outline-offset: -6px;
+    outline-color: var(--paper);
+  }
+  noscript a {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    color: var(--paper);
+  }
+  @media (max-width: 600px) {
+    .play-glyph {
+      width: 64px;
+      height: 64px;
+      margin: -32px 0 0 -32px;
+    }
+  }
+</style>

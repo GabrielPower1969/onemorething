@@ -1,0 +1,14 @@
+---
+import "../../../styles/zh-fonts.css";
+import PostView from "../../../views/Post.astro";
+import ErrorView from "../../../views/ErrorView.astro";
+import { loadPostPage } from "../../../lib/post-page";
+
+const result = await loadPostPage(Astro.params.slug, "zh");
+if (result.kind === "redirect") return Astro.redirect(result.to, 302);
+---
+
+{result.kind === "ok" && <PostView lang="zh" {...result} />}
+{result.kind === "notfound" && <ErrorView lang="zh" status={404} />}
+{result.kind === "gone" && <ErrorView lang="zh" status={410} />}
+{result.kind === "unavailable" && <ErrorView lang="zh" status={503} />}

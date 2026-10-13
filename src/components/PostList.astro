@@ -1,0 +1,82 @@
+---
+import { formatDate, localePath, useT, type Locale, type MessageKey } from "../i18n";
+import type { ListedPost } from "../lib/posts";
+
+interface Props {
+  lang: Locale;
+  items: ListedPost[];
+}
+const { lang, items } = Astro.props;
+const t = useT(lang);
+const kindKey = { text: "writing.kindText", video: "writing.kindVideo", audio: "writing.kindAudio" } as const satisfies Record<
+  string,
+  MessageKey
+>;
+---
+
+<ul class="post-list" role="list">
+  {
+    items.map(({ post, t: tr, lang: itemLang, isOtherLang }) => (
+      <li>
+        <a class="post-row" href={localePath(itemLang, `/writing/${post.slug}`)} hreflang={isOtherLang ? itemLang : undefined}>
+          <time class="meta post-date" datetime={post.published_at ?? undefined}>
+            {post.published_at ? formatDate(post.published_at, lang) : ""}
+          </time>
+          <span class="post-title" lang={isOtherLang ? (itemLang === "zh" ? "zh-Hans" : "en") : undefined}>
+            {tr.title}
+          </span>
+          <span class="meta post-kind">
+            {t(kindKey[post.kind])}
+            {isOtherLang && <> · {t("writing.otherLangTag")}</>}
+          </span>
+        </a>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .post-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .post-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4px;
+    padding-block: 18px;
+    border-top: 1px solid var(--hair);
+  }
+  .post-title {
+    font-size: var(--t-lead);
+    line-height: 1.3;
+  }
+  .post-row:hover .post-title,
+  .post-row:focus-visible .post-title {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+  }
+  .post-kind {
+    order: -1;
+  }
+  .post-date {
+    order: -2;
+  }
+  @media (min-width: 900px) {
+    .post-row {
+      grid-template-columns: 9rem 1fr auto;
+      align-items: baseline;
+      gap: var(--s-4);
+      padding-block: 24px;
+    }
+    .post-kind,
+    .post-date {
+      order: 0;
+    }
+  }
+  .post-list:not(:has(li)) {
+    display: none;
+  }
+</style>

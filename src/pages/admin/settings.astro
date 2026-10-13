@@ -1,0 +1,40 @@
+---
+import { env } from "cloudflare:workers";
+import Admin from "../../layouts/Admin.astro";
+import { getSetting } from "../../lib/posts";
+import type { Featured } from "../../lib/page-data";
+import { youTubeWatchUrl } from "../../lib/youtube";
+
+export const prerender = false;
+const featured = (await getSetting<Partial<Record<"en" | "zh", Featured | null>>>(env.DB, "featured_video")) ?? {};
+const langs = [
+  { id: "en", label: "English home" },
+  { id: "zh", label: "Chinese home (/zh/)" },
+] as const;
+---
+
+<Admin title="Settings" active="settings">
+  <div class="page-head"><h1>Settings</h1></div>
+  <form class="settings" data-settings novalidate>
+    <p class="muted">
+      Featured video on the home page, per language. Leave the Chinese one empty to show the English one there. (YouTube is
+      blocked in mainland China; a Bilibili option is planned for v1.1.)
+    </p>
+    {
+      langs.map((l) => (
+        <fieldset class="box">
+          <legend class="label legend">{l.label}</legend>
+          <label class="field">
+            <span>YouTube URL</span>
+            <input type="url" name={`${l.id}.youtube`} value={featured[l.id] ? youTubeWatchUrl(featured[l.id]!.youtube_id) : ""} autocomplete="off" />
+          </label>
+          <label class="field">
+            <span>Caption title</span>
+            <input type="text" name={`${l.id}.title`} value={featured[l.id]?.title ?? ""} maxlength="200" autocomplete="off" />
+          </label>
+        </fieldset>
+      ))
+    }
+    <div><button type="submit" class="btn primary">Save</button> <span class="save-state" role="status" aria-live="polite" data-save-state></span></div>
+  </form>
+</Admin>

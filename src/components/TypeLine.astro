@@ -1,0 +1,68 @@
+---
+/**
+ * A line that types itself in (src/scripts/typeon.ts). The complete text is always in the DOM,
+ * so screen readers, crawlers and no-JS visitors get it immediately; while typing, the not-yet-typed
+ * remainder is only made transparent, so the line's layout is final from the first frame.
+ * `group` lines type in DOM order once their group is triggered.
+ */
+import { rich } from "../i18n";
+
+interface Props {
+  text: string;
+  group: "overture" | "stage";
+  as?: "p" | "h1" | "h2" | "span";
+  class?: string;
+}
+const { text, group, as: Tag = "p", class: className } = Astro.props;
+---
+
+<Tag class:list={["typeon", className]} data-typeon={group}><span class="t-body" set:html={rich(text)} /><span
+    class="caret"
+    aria-hidden="true"></span></Tag
+>
+
+<style>
+  .typeon {
+    position: relative;
+  }
+  /* Hidden (but laid out) until typing starts. If the script never arrives, a 3 s fallback shows it. */
+  :global(.js-typing) .typeon:not(.is-typing):not(.is-typed) .t-body {
+    color: transparent;
+    animation: typeon-fallback 0s linear 3s forwards;
+  }
+  :global(.js-typing.typeon-armed) .typeon:not(.is-typing):not(.is-typed) .t-body {
+    animation: none;
+  }
+  @keyframes typeon-fallback {
+    to {
+      color: inherit;
+    }
+  }
+  .typeon :global(.t-h) {
+    color: transparent;
+  }
+  .caret {
+    display: none;
+    width: 1px;
+    height: 0.95em;
+    margin-left: 2px;
+    margin-right: -3px;
+    vertical-align: -0.12em;
+    background: currentColor;
+  }
+  .typeon.is-typing .caret,
+  .typeon.is-caret .caret {
+    display: inline-block;
+    animation: caret-blink 1.06s steps(1) infinite;
+  }
+  .typeon.is-caret-out .caret {
+    display: inline-block;
+    opacity: 0;
+    transition: opacity 600ms var(--ease);
+  }
+  @keyframes caret-blink {
+    50% {
+      opacity: 0;
+    }
+  }
+</style>

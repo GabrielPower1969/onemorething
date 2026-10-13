@@ -1,0 +1,97 @@
+---
+import Icon from "./Icon.astro";
+import { WORK, yearsLabel } from "../config/site";
+import { useT, type Locale, type MessageKey } from "../i18n";
+
+interface Props {
+  lang: Locale;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+const k = (id: string, field: "name" | "role" | "line") => `work.${id}.${field}` as MessageKey;
+---
+
+<ul class="work-list" role="list">
+  {
+    WORK.map((w) => {
+      const years = yearsLabel(w.since, w.until);
+      return (
+        <li>
+          <a class="work-row" href={w.url} target="_blank" rel="noopener" data-track-out={w.id}>
+            <span class="work-name">{t(k(w.id, "name"))}</span>
+            <span class="work-detail">
+              <span class="meta">
+                {t(k(w.id, "role"))}
+                {years && <> · {years}</>}
+              </span>
+              <span class="work-line">{t(k(w.id, "line"))}</span>
+            </span>
+            <span class="work-arrow">
+              <Icon name="arrow-up-right" size={24} />
+            </span>
+            <span class="visually-hidden">{t("nav.external")}</span>
+          </a>
+        </li>
+      );
+    })
+  }
+</ul>
+
+<style>
+  .work-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .work-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "name arrow" "detail detail";
+    gap: 6px var(--s-3);
+    padding-block: 22px;
+    border-top: 1px solid var(--hair);
+  }
+  .work-name {
+    grid-area: name;
+    font-size: clamp(28px, 3.2vw, 40px);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+  .work-detail {
+    grid-area: detail;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .work-line {
+    font-size: var(--t-body);
+    line-height: 1.5;
+    max-width: 40em;
+  }
+  .work-arrow {
+    grid-area: arrow;
+    align-self: start;
+    padding-top: 6px;
+    transition: transform 240ms var(--ease);
+  }
+  .work-row:hover .work-arrow,
+  .work-row:focus-visible .work-arrow {
+    transform: translate(2px, -2px);
+  }
+  .work-row:hover .work-name {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+  }
+  @media (min-width: 900px) {
+    .work-row {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr) auto;
+      grid-template-areas: "name detail arrow";
+      gap: var(--s-4);
+      padding-block: 32px;
+    }
+    .work-detail {
+      padding-top: 6px;
+    }
+  }
+</style>

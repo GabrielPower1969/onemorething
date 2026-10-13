@@ -1,0 +1,116 @@
+---
+import type { Post } from "../../lib/posts";
+
+interface Props {
+  post: Post | null;
+}
+const { post } = Astro.props;
+const data = JSON.stringify(post ?? null).replace(/</g, "\\u003c");
+const toLocalInput = (iso: string | null | undefined) => {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const nz = new Intl.DateTimeFormat("sv-SE", { timeZone: "Pacific/Auckland", dateStyle: "short", timeStyle: "short" }).format(d);
+  return nz.replace(" ", "T");
+};
+const langs = [
+  { id: "en", label: "English" },
+  { id: "zh", label: "中文" },
+] as const;
+---
+
+<form class="editor" data-editor novalidate>
+  <script type="application/json" id="post-data" set:html={data} />
+  <div class="editor-main">
+    <div class="tabs" role="tablist" aria-label="Language">
+      {
+        langs.map((l, i) => (
+          <button type="button" role="tab" id={`tab-${l.id}`} aria-controls={`panel-${l.id}`} aria-selected={i === 0 ? "true" : "false"} data-tab={l.id}>
+            <span class="dot" data-dot={l.id} />
+            {l.label}
+          </button>
+        ))
+      }
+    </div>
+    {
+      langs.map((l, i) => (
+        <section class="lang-panel" role="tabpanel" id={`panel-${l.id}`} aria-labelledby={`tab-${l.id}`} hidden={i !== 0} data-lang={l.id} lang={l.id === "zh" ? "zh-Hans" : "en"}>
+          <label class="field">
+            <span>Title</span>
+            <input type="text" name={`${l.id}.title`} maxlength="300" autocomplete="off" />
+          </label>
+          <label class="field">
+            <span>Summary</span>
+            <small>One or two sentences. Used in lists, RSS and link previews.</small>
+            <input type="text" name={`${l.id}.summary`} maxlength="600" autocomplete="off" />
+          </label>
+          <div class="field">
+            <span>Body (Markdown)</span>
+            <div class="md-split">
+              <textarea name={`${l.id}.body_md`} rows="22" spellcheck="true" />
+              <div class="md-preview" data-preview={l.id} aria-live="off" />
+            </div>
+          </div>
+          <label class="field">
+            <span>Cover alt text</span>
+            <small>Describe the cover for people who can't see it. Required to publish when there is a cover.</small>
+            <input type="text" name={`${l.id}.cover_alt`} maxlength="300" autocomplete="off" />
+          </label>
+        </section>
+      ))
+    }
+  </div>
+
+  <aside class="editor-side">
+    <div class="field">
+      <span>Kind</span>
+      <div class="kind-switch">
+        <label><input type="radio" name="kind" value="text" checked /> Words</label>
+        <label><input type="radio" name="kind" value="video" /> Video</label>
+        <label><input type="radio" name="kind" value="audio" /> Audio</label>
+      </div>
+    </div>
+    <label class="field" data-show-kind="video">
+      <span>YouTube URL</span>
+      <input type="url" name="youtube" placeholder="https://youtu.be/…" autocomplete="off" />
+      <small data-yt-state></small>
+    </label>
+    <label class="field" data-show-kind="audio">
+      <span>Audio link</span>
+      <small>Podcast/Spotify/Apple page, or a direct .mp3/.m4a (https only).</small>
+      <input type="url" name="media_url" placeholder="https://…" autocomplete="off" />
+    </label>
+    <div class="field">
+      <span>Cover</span>
+      <button type="button" class="cover-drop" data-cover-drop aria-label="Upload cover image">
+        <span>Drop an image here or click to choose<br />JPEG, PNG, WebP or AVIF · ≤ 5 MB</span>
+      </button>
+      <input type="file" accept="image/jpeg,image/png,image/webp,image/avif" data-cover-file hidden />
+      <div class="row">
+        <button type="button" class="btn quiet" data-cover-yt data-show-kind="video">Use YouTube thumbnail</button>
+        <button type="button" class="btn quiet" data-cover-clear>Remove cover</button>
+      </div>
+    </div>
+    <label class="field">
+      <span>Slug</span>
+      <input type="text" name="slug" pattern="[a-z0-9]+(-[a-z0-9]+)*" autocomplete="off" />
+      <small>onemorething.today/writing/<b data-slug-preview></b></small>
+    </label>
+    <label class="field">
+      <span>Publish date (NZ time)</span>
+      <input type="datetime-local" name="published_at" value={toLocalInput(post?.published_at)} />
+      <small>Leave empty to use the moment you publish.</small>
+    </label>
+    <p class="field"><span>Status</span><span><span class="pill" data-status-pill>{post?.status ?? "new"}</span></span></p>
+    <ul class="problems" data-problems></ul>
+    <div class="row">
+      <button type="button" class="btn" data-save>Save draft</button>
+      <button type="button" class="btn primary" data-publish>Publish</button>
+    </div>
+    <div class="row">
+      <button type="button" class="btn quiet" data-unpublish hidden>Unpublish</button>
+      <button type="button" class="btn quiet" data-archive hidden>Take down</button>
+      <a class="btn quiet" data-view hidden target="_blank" rel="noopener">View ↗</a>
+    </div>
+    <p class="save-state" role="status" aria-live="polite" data-save-state></p>
+  </aside>
+</form>

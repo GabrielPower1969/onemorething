@@ -1,0 +1,54 @@
+---
+import Base from "../layouts/Base.astro";
+import Icon from "../components/Icon.astro";
+import { localePath, useT, type Locale } from "../i18n";
+
+interface Props {
+  lang: Locale;
+  status: 404 | 410 | 503;
+  path?: string;
+}
+const { lang, status, path = "/404" } = Astro.props;
+const t = useT(lang);
+Astro.response.status = status;
+const title = status === 404 ? t("errors.notFoundTitle") : status === 410 ? t("errors.goneTitle") : t("errors.serverTitle");
+---
+
+<Base page={{ locale: lang, path, available: [lang] }} title={title} description={title} noindex>
+  <section class="error">
+    <p class="meta">{status}</p>
+    <h1>{title}</h1>
+    {status === 404 && <p class="body">{t("errors.notFoundBody")}</p>}
+    <a class="back u is-underlined" href={localePath(lang, "/")}>
+      {t("errors.backHome")}
+      <Icon name="arrow-right" size={18} />
+    </a>
+  </section>
+</Base>
+
+<style>
+  .error {
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--s-3);
+    text-align: center;
+    padding: 160px var(--gutter);
+  }
+  h1 {
+    font-size: var(--t-h1);
+    line-height: 1.1;
+  }
+  .body {
+    color: var(--ink-2);
+    font-size: var(--t-lead);
+  }
+  .back {
+    font-size: var(--t-lead);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+</style>

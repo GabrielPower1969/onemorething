@@ -1,0 +1,69 @@
+---
+import Base from "../layouts/Base.astro";
+import { useT, type Locale } from "../i18n";
+import { BOTH } from "../i18n/alternates";
+import { publishedCountSafe } from "../lib/page-data";
+import { Content as En } from "../content/privacy.en.md";
+import { Content as Zh } from "../content/privacy.zh.md";
+
+interface Props {
+  lang: Locale;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+const count = await publishedCountSafe();
+---
+
+<Base page={{ locale: lang, path: "/privacy", available: BOTH }} title={t("privacy.title")} description={t("privacy.title")} showWriting={count > 0}>
+  <article class="privacy measure">
+    <h1>{t("privacy.title")}</h1>
+    <div class="prose">{lang === "zh" ? <Zh /> : <En />}</div>
+    <p class="optout">
+      <button type="button" data-optout data-label-out={t("privacy.optOut")} data-label-in={t("privacy.optIn")} aria-pressed="false">
+        {t("privacy.optOut")}
+      </button>
+    </p>
+    <p class="note" data-optout-note hidden>{t("privacy.optedOut")}</p>
+  </article>
+</Base>
+
+<style>
+  .privacy {
+    padding-top: 168px;
+    padding-bottom: 200px;
+  }
+  h1 {
+    font-size: var(--t-h1);
+    line-height: 1.1;
+    margin-bottom: var(--s-4);
+  }
+  .prose :global(p + p) {
+    margin-top: 1.1em;
+  }
+  .prose :global(a) {
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+    text-decoration-thickness: 1px;
+  }
+  .prose :global(strong) {
+    font-weight: 600;
+  }
+  .optout {
+    margin-top: var(--s-4);
+  }
+  .optout button {
+    border: 1px solid var(--ink);
+    border-radius: 999px;
+    padding: 12px 22px;
+    font-size: var(--t-ui);
+    min-height: 44px;
+  }
+  .optout button:hover {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .note {
+    margin-top: var(--s-2);
+    color: var(--ink-2);
+  }
+</style>

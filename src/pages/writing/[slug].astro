@@ -1,0 +1,13 @@
+---
+import PostView from "../../views/Post.astro";
+import ErrorView from "../../views/ErrorView.astro";
+import { loadPostPage } from "../../lib/post-page";
+
+const result = await loadPostPage(Astro.params.slug, "en");
+if (result.kind === "redirect") return Astro.redirect(result.to, 302);
+---
+
+{result.kind === "ok" && <PostView lang="en" {...result} />}
+{result.kind === "notfound" && <ErrorView lang="en" status={404} />}
+{result.kind === "gone" && <ErrorView lang="en" status={410} />}
+{result.kind === "unavailable" && <ErrorView lang="en" status={503} />}

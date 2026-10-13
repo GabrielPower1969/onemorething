@@ -1,0 +1,56 @@
+/*
+ * Design tokens. Names mirror the Figma variables in
+ * "onemorething.today — v1" (collections omt/color and omt/space).
+ * Change a value here and in Figma together.
+ */
+:root {
+  /* omt/color */
+  --paper: #fafaf7;
+  --ink: #111111;
+  --ink-2: #6b6b6b;
+  --hair: #e4e4e0;
+  --stage: #000000;
+  --stage-ink: #f5f5f2;
+  --stage-ink-2: #8a8a86;
+
+  /* omt/space */
+  --gutter: 24px;
+  --s-1: 8px;
+  --s-2: 16px;
+  --s-3: 24px;
+  --s-4: 40px;
+  --s-5: 64px;
+  --s-6: 120px;
+  --measure: 640px;
+  --wide: 1312px;
+
+  /* type */
+  --font-serif: "Newsreader Variable", "Newsreader", "Noto Serif SC", "Songti SC", Georgia, serif;
+  --font-zh: "Newsreader Latin", "Noto Serif SC", "Songti SC", "STSong", serif;
+  --font-ui: system-ui, -apple-system, "Segoe UI", "PingFang SC", sans-serif;
+
+  --t-display: clamp(44px, 9vw, 112px);
+  --t-h1: clamp(36px, 5vw, 56px);
+  --t-h2: clamp(24px, 2.6vw, 32px);
+  --t-lead: clamp(20px, 2vw, 28px);
+  --t-body: clamp(17px, 1.4vw, 20px);
+  --t-ui: 16px;
+  --t-meta: 12px;
+
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (min-width: 720px) {
+  :root {
+    --gutter: 64px;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --paper: #ffffff;
+    --ink: #000000;
+    --ink-2: #333333;
+    --hair: #767676;
+  }
+}

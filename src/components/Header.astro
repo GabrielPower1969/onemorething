@@ -1,0 +1,273 @@
+---
+import Icon from "./Icon.astro";
+import { HEADER_LINKS, SOCIAL } from "../config/site";
+import { LOCALES, localePath, otherLocale, useT } from "../i18n";
+import { toggleHref, type PageLanguages } from "../i18n/alternates";
+
+interface Props {
+  page: PageLanguages;
+  showWriting: boolean;
+}
+const { page, showWriting } = Astro.props;
+const t = useT(page.locale);
+const other = otherLocale(page.locale);
+const home = localePath(page.locale, "/");
+const writing = localePath(page.locale, "/writing");
+const langHref = toggleHref(page);
+const socials = SOCIAL.filter((s) => s.url && s.header);
+---
+
+<header class="site-header" data-section="header">
+  <a href={home} class="wordmark" aria-label={`onemorething.today — ${t("nav.home")}`}>
+    onemorething<span class="wordmark-dot" aria-hidden="true"></span>
+  </a>
+
+  <nav class="nav-desktop" aria-label={t("nav.primary")}>
+    {showWriting && <a class="u" href={writing}>{t("nav.writing")}</a>}
+    {
+      HEADER_LINKS.map((l) => (
+        <a class="ext" href={l.url} target="_blank" rel="noopener" data-track-out={l.id}>
+          <span class="u">{l.label}</span>
+          <Icon name="arrow-up-right" size={14} />
+          <span class="visually-hidden">{t("nav.external")}</span>
+        </a>
+      ))
+    }
+    {
+      socials.map((s) => (
+        <a class="icon-link" href={s.url} target="_blank" rel="noopener me" data-track-out={s.id}>
+          <Icon name={s.id} label={t(`social.${s.id}`)} />
+        </a>
+      ))
+    }
+    <span class="divider" aria-hidden="true"></span>
+    <a class="lang" href={langHref} hreflang={LOCALES[other].hreflang} data-track-lang={other} aria-label={t("nav.switchTo")}>
+      <span class="lang-cur">{t("nav.langShort")}</span><span class="lang-sep" aria-hidden="true">/</span><span
+        class="lang-other"
+        lang={LOCALES[other].html}>{t("nav.otherLangShort")}</span
+      >
+    </a>
+  </nav>
+
+  <div class="nav-mobile">
+    <a class="lang" href={langHref} hreflang={LOCALES[other].hreflang} data-track-lang={other} aria-label={t("nav.switchTo")}>
+      <span class="lang-cur">{t("nav.langShort")}</span><span class="lang-sep" aria-hidden="true">/</span><span
+        class="lang-other"
+        lang={LOCALES[other].html}>{t("nav.otherLangShort")}</span
+      >
+    </a>
+    <button class="menu-open" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="menu-sheet">
+      {t("nav.menu")}
+    </button>
+  </div>
+</header>
+
+<dialog id="menu-sheet" class="menu-sheet" aria-label={t("nav.primary")} data-section="menu">
+  <div class="sheet-top">
+    <a href={home} class="wordmark">onemorething<span class="wordmark-dot" aria-hidden="true"></span></a>
+    <button class="menu-close icon-link" type="button" aria-label={t("nav.close")}>
+      <Icon name="x" size={24} />
+    </button>
+  </div>
+  <nav class="sheet-links" aria-label={t("nav.primary")}>
+    <a href={home}>{t("nav.home")}</a>
+    {showWriting && <a href={writing}>{t("nav.writing")}</a>}
+    {
+      HEADER_LINKS.map((l) => (
+        <a href={l.url} target="_blank" rel="noopener" data-track-out={l.id}>
+          {l.label}
+          <Icon name="arrow-up-right" size={20} />
+          <span class="visually-hidden">{t("nav.external")}</span>
+        </a>
+      ))
+    }
+    {
+      socials.map((s) => (
+        <a href={s.url} target="_blank" rel="noopener me" data-track-out={s.id}>
+          {t(`social.${s.id}`)}
+          <Icon name="arrow-up-right" size={20} />
+          <span class="visually-hidden">{t("nav.external")}</span>
+        </a>
+      ))
+    }
+  </nav>
+  <p class="sheet-lang">
+    <a href={langHref} hreflang={LOCALES[other].hreflang} data-track-lang={other} lang={LOCALES[other].html}>
+      {other === "zh" ? "中文" : "English"}
+    </a>
+  </p>
+</dialog>
+
+<style>
+  .site-header {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 72px;
+    padding-inline: var(--gutter);
+    background: color-mix(in srgb, var(--paper) 92%, transparent);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    transition:
+      background-color 300ms var(--ease),
+      color 300ms var(--ease);
+  }
+  :global(.header-on-stage) .site-header {
+    background: color-mix(in srgb, var(--stage) 88%, transparent);
+    color: var(--stage-ink);
+  }
+  .wordmark {
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    display: inline-flex;
+    align-items: baseline;
+    min-height: 44px;
+    align-items: center;
+    transition: opacity 400ms var(--ease);
+  }
+  .wordmark-dot {
+    display: inline-block;
+    width: 0.2em;
+    height: 0.2em;
+    margin-left: 0.06em;
+    border-radius: 50%;
+    background: currentColor;
+    align-self: center;
+    transform: translateY(0.3em);
+  }
+  /* Home: no wordmark until the Overture has scrolled away (never "one more thing" twice). */
+  :global(.is-home:not(.past-overture)) .site-header .wordmark {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .nav-desktop {
+    display: none;
+    align-items: center;
+    gap: 28px;
+    font-size: var(--t-ui);
+  }
+  .nav-desktop > a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .ext {
+    gap: 2px;
+  }
+  .icon-link {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-inline: -12px;
+  }
+  .divider {
+    width: 1px;
+    height: 16px;
+    background: var(--hair);
+  }
+  .lang {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    font-size: 15px;
+  }
+  /* Inactive language in --ink-2 (≈5:1), not opacity: 55% opacity measured 4.1:1 and failed AA. */
+  .lang-sep,
+  .lang-other {
+    color: var(--ink-2);
+    transition: color 200ms var(--ease);
+  }
+  :global(.header-on-stage) .lang-sep,
+  :global(.header-on-stage) .lang-other {
+    color: var(--stage-ink-2);
+  }
+  .lang:hover .lang-other,
+  .lang:focus-visible .lang-other {
+    color: inherit;
+  }
+  .lang-other:lang(zh-Hans) {
+    font-family: "Noto Serif SC", "Songti SC", "PingFang SC", serif;
+  }
+  .nav-mobile {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-size: var(--t-ui);
+  }
+  .menu-open {
+    min-height: 44px;
+    padding-inline: 4px;
+  }
+  @media (min-width: 900px) {
+    .nav-desktop {
+      display: flex;
+    }
+    .nav-mobile {
+      display: none;
+    }
+  }
+
+  .menu-sheet {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0 var(--gutter);
+    border: 0;
+    background: var(--paper);
+    color: var(--ink);
+  }
+  .menu-sheet::backdrop {
+    background: var(--paper);
+  }
+  .menu-sheet[open] {
+    display: flex;
+    flex-direction: column;
+  }
+  .sheet-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 72px;
+  }
+  .menu-close {
+    margin-right: -10px;
+  }
+  .sheet-links {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    font-size: 32px;
+    line-height: 1.25;
+  }
+  .sheet-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 48px;
+  }
+  .sheet-lang {
+    text-align: center;
+    padding-bottom: 48px;
+    font-size: 18px;
+  }
+  .sheet-lang a {
+    display: inline-block;
+    min-height: 44px;
+    padding: 10px;
+  }
+</style>

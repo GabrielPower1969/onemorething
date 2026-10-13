@@ -1,0 +1,252 @@
+---
+import Base from "../layouts/Base.astro";
+import Icon from "../components/Icon.astro";
+import VideoFacade from "../components/VideoFacade.astro";
+import { formatDate, localePath, otherLocale, useT, LOCALES, type Locale, type MessageKey } from "../i18n";
+import type { ListedPost, Post, Translation } from "../lib/posts";
+import { readingMinutes } from "../lib/markdown";
+
+interface Props {
+  lang: Locale;
+  post: Post;
+  t: Translation;
+  available: Locale[];
+  prev: ListedPost | null;
+  next: ListedPost | null;
+}
+const { lang, post, t: tr, available, prev, next } = Astro.props;
+const t = useT(lang);
+const other = otherLocale(lang);
+const kindKey = { text: "writing.kindText", video: "writing.kindVideo", audio: "writing.kindAudio" } as const satisfies Record<
+  string,
+  MessageKey
+>;
+const isDirectAudio = post.kind === "audio" && /\.(mp3|m4a|aac|ogg|wav)(\?|$)/i.test(post.media_url ?? "");
+const coverAlt = tr.cover_alt || t("media.coverAlt", { title: tr.title });
+const ogImage = post.cover_key ? `/media/${post.cover_key}` : undefined;
+const href = (item: ListedPost) => localePath(item.lang, `/writing/${item.post.slug}`);
+---
+
+<Base
+  page={{ locale: lang, path: `/writing/${post.slug}`, available }}
+  title={tr.title}
+  description={tr.summary || tr.title}
+  ogType="article"
+  ogImage={ogImage}
+  publishedAt={post.published_at}
+  showWriting
+>
+  <article class="post" data-section="post">
+    <header class="post-head measure">
+      <p class="meta">
+        {post.published_at && <time datetime={post.published_at}>{formatDate(post.published_at, lang, "long")}</time>}
+        <span aria-hidden="true"> · </span>{t(kindKey[post.kind])}
+        {post.kind === "text" && <><span aria-hidden="true"> · </span>{t("writing.minutes", { n: readingMinutes(tr.body_md) })}</>}
+      </p>
+      <h1>{tr.title}</h1>
+    </header>
+
+    {
+      post.kind === "video" && post.youtube_id && (
+        <div class="media media-video">
+          <VideoFacade youtubeId={post.youtube_id} title={tr.title} coverKey={post.cover_key} lang={lang} trackId={post.slug} priority />
+        </div>
+      )
+    }
+    {
+      post.kind === "audio" && (
+        <div class="media media-audio measure">
+          {post.cover_key && <img class="square" src={`/media/${post.cover_key}`} alt={coverAlt} loading="eager" decoding="async" />}
+          {isDirectAudio ? (
+            <audio controls preload="none" src={post.media_url} data-track-play={post.slug} />
+          ) : (
+            post.media_url && (
+              <a class="listen" href={post.media_url} target="_blank" rel="noopener" data-track-out="audio">
+                <Icon name="headphones" size={20} /> {t("post.listen")} <Icon name="arrow-up-right" size={16} />
+                <span class="visually-hidden">{t("nav.external")}</span>
+              </a>
+            )
+          )}
+        </div>
+      )
+    }
+    {
+      post.kind === "text" && post.cover_key && (
+        <div class="media media-cover">
+          <img src={`/media/${post.cover_key}`} alt={coverAlt} loading="eager" decoding="async" />
+        </div>
+      )
+    }
+
+    <div class="prose measure" data-read={post.slug}>
+      {post.kind !== "text" && tr.body_html && <p class="meta notes-label">{t("post.notes")}</p>}
+      <Fragment set:html={tr.body_html} />
+    </div>
+
+    <footer class="post-foot measure">
+      <button class="share" type="button" data-copy="location" data-copied-label={t("post.copied")}>
+        <Icon name="copy" size={18} /> <span>{t("post.copyLink")}</span>
+      </button>
+      {
+        available.includes(other) && (
+          <a class="u" href={localePath(other, `/writing/${post.slug}`)} hreflang={LOCALES[other].hreflang} data-track-lang={other}>
+            {t("post.readInOther")}
+          </a>
+        )
+      }
+      <p class="visually-hidden" role="status" aria-live="polite" data-copy-status></p>
+    </footer>
+
+    <nav class="measure" aria-label={t("post.backToWriting")}>
+      <div class="adjacent">
+        {prev ? <a class="u" href={href(prev)} rel="prev">← {prev.t.title}</a> : <span />}
+        {next ? <a class="u" href={href(next)} rel="next">{next.t.title} →</a> : <a class="u" href={localePath(lang, "/writing")}>{t("post.backToWriting")} →</a>}
+      </div>
+    </nav>
+  </article>
+</Base>
+
+<style>
+  .post {
+    padding-top: 152px;
+    padding-bottom: 160px;
+  }
+  .post-head {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--s-2);
+    max-width: calc(880px + 2 * var(--gutter));
+  }
+  .post-head h1 {
+    font-size: var(--t-h1);
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+  }
+  .media {
+    margin: var(--s-5) auto 0;
+    padding-inline: var(--gutter);
+  }
+  .media-video,
+  .media-cover {
+    max-width: calc(1120px + 2 * var(--gutter));
+  }
+  .media-cover img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+  .media-audio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--s-3);
+  }
+  .square {
+    width: min(360px, 100%);
+    aspect-ratio: 1;
+    object-fit: cover;
+  }
+  .media-audio audio {
+    width: 100%;
+  }
+  .listen {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border: 1px solid var(--ink);
+    border-radius: 999px;
+    font-size: var(--t-ui);
+  }
+  .listen:hover {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .prose {
+    margin-top: var(--s-5);
+    font-size: var(--t-body);
+    line-height: 1.65;
+  }
+  .prose :global(> * + *) {
+    margin-top: 1.1em;
+  }
+  .prose :global(h2) {
+    font-size: var(--t-h2);
+    line-height: 1.25;
+    margin-top: 1.8em;
+  }
+  .prose :global(h3) {
+    font-size: var(--t-lead);
+    margin-top: 1.5em;
+  }
+  .prose :global(a) {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+  }
+  .prose :global(blockquote) {
+    font-style: italic;
+    font-size: var(--t-lead);
+    line-height: 1.45;
+    padding-left: var(--s-3);
+    border-left: 1px solid var(--ink);
+  }
+  .prose :global(:lang(zh-Hans) blockquote),
+  :global(:lang(zh-Hans)) .prose :global(blockquote) {
+    font-style: normal;
+  }
+  .prose :global(img) {
+    width: 100%;
+    height: auto;
+  }
+  .prose :global(code) {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 0.85em;
+    background: color-mix(in srgb, var(--ink) 6%, transparent);
+    padding: 0.1em 0.3em;
+    border-radius: 3px;
+  }
+  .prose :global(pre) {
+    overflow-x: auto;
+    padding: var(--s-2);
+    background: color-mix(in srgb, var(--ink) 5%, transparent);
+  }
+  .prose :global(pre code) {
+    background: none;
+    padding: 0;
+  }
+  .notes-label {
+    margin-bottom: -0.4em;
+  }
+  .post-foot {
+    margin-top: var(--s-5);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-4);
+    font-size: var(--t-ui);
+  }
+  .share {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+  }
+  .share:global(.is-done) {
+    color: var(--ink-2);
+  }
+  .adjacent {
+    margin-top: var(--s-5);
+    padding-top: var(--s-4);
+    border-top: 1px solid var(--hair);
+    display: flex;
+    justify-content: space-between;
+    gap: var(--s-3);
+    font-size: var(--t-ui);
+  }
+  .adjacent a {
+    max-width: 45%;
+  }
+</style>

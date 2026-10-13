@@ -1,0 +1,9 @@
+---
+import "../styles/zh-fonts.css";
+import ErrorView from "../views/ErrorView.astro";
+import { splitLocale } from "../i18n";
+
+const { locale } = splitLocale(Astro.url.pathname);
+---
+
+<ErrorView lang={locale} status={404} />

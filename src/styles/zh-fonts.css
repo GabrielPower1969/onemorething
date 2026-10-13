@@ -1,0 +1,29 @@
+/*
+ * Chinese pages only (imported by src/pages/zh/* route files, so English pages never load it).
+ * Noto Serif SC ships as ~100 unicode-range slices; the browser downloads only the slices a page uses.
+ */
+@import "@fontsource/noto-serif-sc/400.css";
+
+/*
+ * Latin inside Chinese text keeps Newsreader, but the punctuation Chinese typography owns —
+ * — (U+2014), ‘ ’ “ ” (U+2018–201D) and … (U+2026) — falls through to Noto Serif SC,
+ * so “” and —— get full-width CJK shapes instead of narrow Latin ones.
+ */
+@font-face {
+  font-family: "Newsreader Latin";
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url("/fonts/newsreader-latin-opsz-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-2013,
+    U+2015-2017, U+201E-2025, U+2027-206F, U+20AC, U+2122, U+2212, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Newsreader Latin";
+  font-style: italic;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url("/fonts/newsreader-latin-opsz-italic.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-2013,
+    U+2015-2017, U+201E-2025, U+2027-206F, U+20AC, U+2122, U+2212, U+FEFF, U+FFFD;
+}

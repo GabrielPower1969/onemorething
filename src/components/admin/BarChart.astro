@@ -1,0 +1,72 @@
+---
+/**
+ * Daily visitors, one series → no legend (the heading names it). Thin bars with 4 px rounded tops
+ * on the baseline, 2 px gaps, recessive grid, a per-bar hover/focus tooltip, and a table view.
+ */
+interface Props {
+  data: { day: string; visitors: number; pageviews: number }[];
+}
+const { data } = Astro.props;
+const W = 1100, H = 220, PAD_L = 36, PAD_B = 22, PAD_T = 10;
+const max = Math.max(4, ...data.map((d) => d.visitors));
+const niceMax = Math.ceil(max / 4) * 4;
+const plotW = W - PAD_L, plotH = H - PAD_B - PAD_T;
+const step = plotW / data.length;
+const barW = Math.max(2, step - 2);
+const y = (v: number) => PAD_T + plotH - (v / niceMax) * plotH;
+const ticks = [0, niceMax / 2, niceMax];
+const fmt = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString("en-NZ", { day: "numeric", month: "short", timeZone: "UTC" });
+function barPath(x: number, top: number, w: number) {
+  const base = PAD_T + plotH;
+  const h = base - top;
+  if (h <= 0) return "";
+  const r = Math.min(4, w / 2, h);
+  return `M${x},${base} V${top + r} Q${x},${top} ${x + r},${top} H${x + w - r} Q${x + w},${top} ${x + w},${top + r} V${base} Z`;
+}
+---
+
+<div class="chart-wrap">
+  <svg class="chart" viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label={`Visitors per day, last ${data.length} days`}>
+    {
+      ticks.map((v) => (
+        <g>
+          <line class="grid" x1={PAD_L} x2={W} y1={y(v)} y2={y(v)} />
+          <text x={PAD_L - 8} y={y(v) + 4} text-anchor="end">{v}</text>
+        </g>
+      ))
+    }
+    {
+      data.map((d, i) => {
+        const x = PAD_L + i * step + 1;
+        return (
+          <g>
+            <rect
+              class="bar-hit"
+              x={PAD_L + i * step}
+              y={PAD_T}
+              width={step}
+              height={plotH}
+              fill="transparent"
+              tabindex="0"
+              data-tip={`${fmt(d.day)} · ${d.visitors} visitors · ${d.pageviews} views`}
+            />
+            <path class="bar" d={barPath(x, y(d.visitors), barW)} />
+          </g>
+        );
+      })
+    }
+    {
+      [0, Math.floor(data.length / 2), data.length - 1].map((i) => (
+        <text x={PAD_L + i * step + step / 2} y={H - 6} text-anchor="middle">{fmt(data[i].day)}</text>
+      ))
+    }
+  </svg>
+  <div class="chart-tip" aria-hidden="true"></div>
+  <details>
+    <summary class="muted">Show as table</summary>
+    <table class="table">
+      <thead><tr><th>Day</th><th class="num">Visitors</th><th class="num">Page views</th></tr></thead>
+      <tbody>{data.map((d) => <tr><td>{d.day}</td><td class="num">{d.visitors}</td><td class="num">{d.pageviews}</td></tr>)}</tbody>
+    </table>
+  </details>
+</div>

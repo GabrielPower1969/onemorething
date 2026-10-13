@@ -1,0 +1,28 @@
+---
+interface Props {
+  title: string;
+  rows: { key: string; n: number }[];
+  empty?: string;
+}
+const { title, rows, empty = "Nothing yet." } = Astro.props;
+---
+
+<section>
+  <h2 class="label">{title}</h2>
+  {
+    rows.length ? (
+      <table class="table">
+        <tbody>
+          {rows.map((r) => (
+            <tr>
+              <td>{r.key}</td>
+              <td class="num">{r.n}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    ) : (
+      <p class="muted">{empty}</p>
+    )
+  }
+</section>

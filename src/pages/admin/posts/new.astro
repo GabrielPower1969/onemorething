@@ -1,0 +1,11 @@
+---
+import Admin from "../../../layouts/Admin.astro";
+import Editor from "../../../components/admin/Editor.astro";
+
+export const prerender = false;
+---
+
+<Admin title="New post" active="posts">
+  <div class="page-head"><h1>New post</h1><a class="muted" href="/admin/posts">← All posts</a></div>
+  <Editor post={null} />
+</Admin>

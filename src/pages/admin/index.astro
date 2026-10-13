@@ -1,0 +1,43 @@
+---
+import { env } from "cloudflare:workers";
+import Admin from "../../layouts/Admin.astro";
+import BarChart from "../../components/admin/BarChart.astro";
+import TopList from "../../components/admin/TopList.astro";
+import { loadStats } from "../../lib/stats";
+
+export const prerender = false;
+
+const ranges = [7, 30, 90];
+const days = ranges.includes(Number(Astro.url.searchParams.get("days"))) ? Number(Astro.url.searchParams.get("days")) : 30;
+const s = await loadStats(env.DB, days);
+const pct = (v: number | null) => (v === null ? "—" : `${Math.round(v * 100)}%`);
+---
+
+<Admin title="Dashboard" active="dashboard">
+  <div class="page-head">
+    <h1>Traffic</h1>
+    <nav class="range" aria-label="Range">
+      {ranges.map((r) => <a href={`/admin?days=${r}`} aria-current={r === days ? "page" : undefined}>{r} days</a>)}
+    </nav>
+  </div>
+
+  <div class="tiles">
+    <div class="tile"><div class="label">Visitor-days</div><div class="value">{s.visitorDays}</div><div class="hint">distinct visitors per day, summed</div></div>
+    <div class="tile"><div class="label">Engaged visits</div><div class="value">{s.engaged}</div><div class="hint">≥ 10 s, ≥ 2 pages, or a click</div></div>
+    <div class="tile"><div class="label">Page views</div><div class="value">{s.pageviews}</div><div class="hint">last {days} days</div></div>
+    <div class="tile"><div class="label">Work reach</div><div class="value">{pct(s.workReach)}</div><div class="hint">home visits that saw Work</div></div>
+  </div>
+
+  <h2 class="label">Visitors per day</h2>
+  <BarChart data={s.series} />
+
+  <div class="panels">
+    <TopList title="Top pages" rows={s.topPages} />
+    <TopList title="Where visitors came from" rows={s.sources} empty="No referrers yet (direct visits and WeChat send none)." />
+    <TopList title="Outbound clicks & email" rows={s.outbound} />
+    <TopList title="Language" rows={s.langs} />
+    <TopList title="Countries" rows={s.countries} />
+    <TopList title="Devices" rows={s.devices} />
+  </div>
+  <p class="muted foot-note">Definitions: docs/METRICS.md. Visitors are never identified; hashes reset every New Zealand day.</p>
+</Admin>

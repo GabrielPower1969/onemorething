@@ -1,0 +1,79 @@
+---
+import { SITE, SOCIAL } from "../config/site";
+import { LOCALES, localePath, plain, useT, type Locale } from "../i18n";
+import { absolute, canonicalUrl, hreflangLinks, type PageLanguages } from "../i18n/alternates";
+
+interface Props {
+  page: PageLanguages;
+  /** Page title without the site suffix; omit for Home. */
+  title?: string;
+  description: string;
+  ogType?: "website" | "article";
+  ogImage?: string;
+  publishedAt?: string | null;
+  noindex?: boolean;
+}
+
+const { page, title, description, ogType = "website", ogImage, publishedAt, noindex } = Astro.props;
+const t = useT(page.locale);
+const lang: Locale = page.locale;
+const fullTitle = title ? t("meta.titleTemplate", { title: plain(title) }) : t("meta.titleHome");
+const canonical = canonicalUrl(page);
+const image = absolute(ogImage ?? `/og/${lang}.png`);
+
+const person = {
+  "@type": "Person",
+  "@id": `${SITE.origin}/#person`,
+  name: t("person.name"),
+  alternateName: [lang === "zh" ? "Gabriel Chen" : "陈广宇", SITE.author.alternateName],
+  jobTitle: t("person.jobTitle"),
+  url: SITE.origin,
+  email: `mailto:${SITE.email}`,
+  worksFor: { "@type": "Organization", name: "Trimble", url: "https://www.trimble.com" },
+  founder: { "@type": "Organization", name: "Flowgt", url: "https://flowgt.co.nz" },
+  sameAs: SOCIAL.filter((s) => s.url).map((s) => s.url),
+};
+const graph: Record<string, unknown>[] = [
+  person,
+  {
+    "@type": "WebSite",
+    "@id": `${SITE.origin}/#website`,
+    url: SITE.origin,
+    name: t("meta.siteName"),
+    inLanguage: LOCALES[lang].html,
+    author: { "@id": `${SITE.origin}/#person` },
+  },
+];
+if (ogType === "article" && title) {
+  graph.push({
+    "@type": "BlogPosting",
+    headline: plain(title),
+    inLanguage: LOCALES[lang].html,
+    url: canonical,
+    datePublished: publishedAt ?? undefined,
+    author: { "@id": `${SITE.origin}/#person` },
+  });
+}
+// Escape "<" so post titles can never close the script element.
+const jsonLd = JSON.stringify({ "@context": "https://schema.org", "@graph": graph }).replace(/</g, "\\u003c");
+---
+
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+{hreflangLinks(page).map((l) => <link rel="alternate" hreflang={l.hreflang} href={l.href} />)}
+{noindex && <meta name="robots" content="noindex, nofollow" />}
+<link rel="alternate" type="application/rss+xml" title={t("rss.title")} href={localePath(lang, "/rss.xml")} />
+
+<meta property="og:type" content={ogType} />
+<meta property="og:site_name" content={t("meta.siteName")} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={image} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={t("meta.ogImageAlt")} />
+<meta property="og:locale" content={LOCALES[lang].og} />
+<meta name="twitter:card" content="summary_large_image" />
+<script type="application/ld+json" set:html={jsonLd} />

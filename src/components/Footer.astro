@@ -1,0 +1,40 @@
+---
+import { localePath, useT } from "../i18n";
+import type { PageLanguages } from "../i18n/alternates";
+
+interface Props {
+  page: PageLanguages;
+}
+const { page } = Astro.props;
+const t = useT(page.locale);
+const year = new Intl.DateTimeFormat("en", { timeZone: "Pacific/Auckland", year: "numeric" }).format(new Date());
+---
+
+<footer class="site-footer meta" data-section="footer">
+  <p>{t("footer.rights", { year })} · {t("footer.made")}</p>
+  <p class="links">
+    <a class="u" href={localePath(page.locale, "/privacy")}>{t("footer.privacy")}</a>
+    <span aria-hidden="true">·</span>
+    <a class="u" href={localePath(page.locale, "/rss.xml")}>{t("footer.rss")}</a>
+  </p>
+</footer>
+
+<style>
+  .site-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--s-1) var(--s-3);
+    padding: 28px var(--gutter);
+    border-top: 1px solid var(--hair);
+  }
+  .links {
+    display: flex;
+    gap: 10px;
+  }
+  .links a {
+    display: inline-block;
+    padding-block: 12px;
+    margin-block: -12px;
+  }
+</style>

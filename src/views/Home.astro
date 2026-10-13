@@ -1,0 +1,317 @@
+---
+/**
+ * Home = About. Order (docs/PLAN.md §2.2): Overture → Hello → Work → Writing → One more thing → Contact.
+ * Only D1-backed parts (Writing, featured video) can be missing; the page renders without D1.
+ */
+import Base from "../layouts/Base.astro";
+import TypeLine from "../components/TypeLine.astro";
+import WorkList from "../components/WorkList.astro";
+import PostList from "../components/PostList.astro";
+import VideoFacade from "../components/VideoFacade.astro";
+import Icon from "../components/Icon.astro";
+import { SITE, SOCIAL, FEATURES } from "../config/site";
+import { localePath, plain, rich, useT, type Locale } from "../i18n";
+import { BOTH } from "../i18n/alternates";
+import { loadHome } from "../lib/page-data";
+
+interface Props {
+  lang: Locale;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+const { latest, featured, featuredLang, publishedCount } = await loadHome(lang);
+const socials = SOCIAL.filter((s) => s.url);
+const storyKeys = ["home.story1", "home.story2", "home.story3", "home.story4"] as const;
+---
+
+<Base
+  page={{ locale: lang, path: "/", available: BOTH }}
+  description={t("meta.descriptionHome")}
+  isHome
+  showWriting={publishedCount >= FEATURES.writingInHeaderMinPosts && publishedCount > 0}
+>
+  <section class="overture" data-section="overture" aria-label={plain(t("home.overture"))}>
+    <p class="overture-line">
+      <TypeLine as="span" group="overture" text={t("home.overture").replace(/\.$/, "")} /><span
+        class="breath"
+        aria-hidden="true"></span><span class="visually-hidden">.</span>
+    </p>
+  </section>
+
+  <section class="hello measure" data-section="hello" data-reveal>
+    <h1 class="hello-title" set:html={rich(t("home.helloTitle"))} />
+    <p class="hello-lead">{t("home.helloLead")}</p>
+    <p class="hello-body">{t("home.helloBody")}</p>
+  </section>
+
+  <section class="work wrap" data-section="work" aria-labelledby="work-h" data-reveal>
+    <h2 id="work-h" class="meta section-label">{t("home.workHeading")}</h2>
+    <WorkList lang={lang} />
+  </section>
+
+  {
+    (latest.length > 0 || featured) && (
+      <section class="writing wrap" data-section="writing" aria-labelledby="writing-h" data-reveal>
+        <div class="section-head">
+          <h2 id="writing-h" class="meta section-label">{t("home.writingHeading")}</h2>
+          {latest.length > 0 && (
+            <a class="all u" href={localePath(lang, "/writing")}>
+              {t("home.writingAll")} <Icon name="arrow-right" size={16} />
+            </a>
+          )}
+        </div>
+        <PostList lang={lang} items={latest} />
+        {featured && FEATURES.featuredVideo && (
+          <figure class="featured" lang={featuredLang === lang ? undefined : "en"}>
+            <VideoFacade youtubeId={featured.youtube_id} title={featured.title} coverKey={featured.cover_key} lang={featuredLang} />
+            <figcaption class="meta">
+              {useT(featuredLang)("home.featured")} · {featured.title}
+            </figcaption>
+          </figure>
+        )}
+      </section>
+    )
+  }
+
+  <section class="stage on-stage" data-section="stage" data-stage aria-labelledby="stage-h">
+    <div class="stage-inner">
+      <h2 id="stage-h" class="meta stage-label">{t("home.stageHeading")}</h2>
+      {storyKeys.map((key) => <TypeLine group="stage" class="story-line" text={t(key)} />)}
+      <TypeLine group="stage" class="story-last" text={t("home.story5")} />
+      <details class="sources">
+        <summary>{t("home.sources")} <Icon name="arrow-down" size={14} /></summary>
+        <ol>
+          <li>
+            <a
+              class="u"
+              href="https://tidbits.com/1998/01/06/jobs-announces-45-million-profit/"
+              target="_blank"
+              rel="noopener"
+              data-track-out="source">{t("home.source1")}</a
+            >
+          </li>
+          <li>
+            <a
+              class="u"
+              href="https://en.wikipedia.org/wiki/Stevenote#%22One_more_thing...%22"
+              target="_blank"
+              rel="noopener"
+              data-track-out="source">{t("home.source2")}</a
+            >
+          </li>
+        </ol>
+      </details>
+    </div>
+  </section>
+
+  <section class="contact" data-section="contact" aria-labelledby="contact-h" data-reveal>
+    <h2 id="contact-h" class="contact-title">{t("contact.heading")}</h2>
+    <p class="contact-email">
+      <a class="u is-underlined" href={`mailto:${SITE.email}`} data-track-email="mailto">{SITE.email}</a>
+      <button class="copy" type="button" data-copy={SITE.email} data-copied-label={t("contact.copied")} data-track-email="copy">
+        <Icon name="copy" size={18} label={t("contact.copyEmail")} />
+      </button>
+    </p>
+    <p class="contact-icons">
+      <a class="icon-link" href={`mailto:${SITE.email}`} data-track-email="mailto"><Icon name="mail" size={24} label={t("social.email")} /></a>
+      {
+        socials.map((s) => (
+          <a class="icon-link" href={s.url} target="_blank" rel="noopener me" data-track-out={s.id}>
+            <Icon name={s.id} size={24} label={t(`social.${s.id}`)} />
+          </a>
+        ))
+      }
+    </p>
+    <p class="visually-hidden" role="status" aria-live="polite" data-copy-status></p>
+  </section>
+</Base>
+
+<style>
+  .overture {
+    min-height: 100svh;
+    display: grid;
+    place-items: center;
+    padding: 72px var(--gutter);
+  }
+  .overture-line {
+    font-size: var(--t-display);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    font-variation-settings: "opsz" 72;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: baseline;
+  }
+  .breath {
+    display: inline-block;
+    width: 0.15em;
+    height: 0.15em;
+    margin-left: 0.05em;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  :global(.js-typing) .breath:not(.is-on) {
+    opacity: 0;
+  }
+  .breath.is-on {
+    transition: opacity 300ms var(--ease);
+  }
+  .breath.is-breathing {
+    animation: breathe 4s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    50% {
+      transform: scale(0.82);
+      opacity: 0.72;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .breath.is-breathing {
+      animation: none;
+    }
+  }
+
+  .hello {
+    padding-block: var(--s-6) 160px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-3);
+  }
+  .hello-title {
+    font-size: var(--t-h1);
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+  }
+  .hello-lead {
+    font-size: var(--t-lead);
+    line-height: 1.4;
+  }
+  .hello-body {
+    color: var(--ink-2);
+  }
+
+  .work,
+  .writing {
+    padding-bottom: 160px;
+  }
+  .section-label {
+    margin-bottom: var(--s-3);
+  }
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .all {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--t-ui);
+    min-height: 44px;
+  }
+  .featured {
+    margin: var(--s-5) auto 0;
+    max-width: 960px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-2);
+  }
+  .featured figcaption {
+    text-align: center;
+  }
+
+  .stage {
+    background: var(--stage);
+    color: var(--stage-ink);
+    padding: 200px var(--gutter);
+  }
+  .stage-inner {
+    max-width: 1000px;
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 28px;
+  }
+  .stage-label {
+    color: var(--stage-ink-2);
+    margin-bottom: var(--s-1);
+  }
+  .stage :global(.story-line) {
+    font-size: var(--t-h2);
+    line-height: 1.3;
+    max-width: 30em;
+    text-wrap: balance;
+  }
+  .stage :global(.story-last) {
+    text-wrap: balance;
+    font-size: var(--t-h1);
+    line-height: 1.15;
+    margin-top: var(--s-3);
+  }
+  .sources {
+    margin-top: var(--s-4);
+    color: var(--stage-ink-2);
+    font-size: 15px;
+    max-width: 40em;
+  }
+  .sources summary {
+    cursor: pointer;
+    list-style: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+  }
+  .sources summary::-webkit-details-marker {
+    display: none;
+  }
+  .sources[open] summary :global(svg) {
+    transform: rotate(180deg);
+  }
+  .sources ol {
+    text-align: left;
+    margin: var(--s-2) 0 0;
+    padding-left: 1.2em;
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-1);
+    line-height: 1.5;
+  }
+
+  .contact {
+    padding: 200px var(--gutter) 160px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+    text-align: center;
+  }
+  .contact-title {
+    font-size: var(--t-h1);
+    line-height: 1.1;
+  }
+  .contact-email {
+    font-size: var(--t-lead);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .copy,
+  .icon-link {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-grid;
+    place-items: center;
+  }
+  .copy.is-done {
+    color: var(--ink-2);
+  }
+  .contact-icons {
+    display: flex;
+    gap: 12px;
+  }
+</style>

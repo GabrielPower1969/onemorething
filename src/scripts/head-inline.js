@@ -1,0 +1,1 @@
+try{if(!sessionStorage.getItem("omt_typed")&&!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("js-typing")}catch(e){}document.documentElement.classList.add("js");

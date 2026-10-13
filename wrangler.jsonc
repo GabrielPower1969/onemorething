@@ -1,0 +1,36 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "onemorething",
+  "main": "@astrojs/cloudflare/entrypoints/server",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  // Never expose *.workers.dev; preview URLs stay off until Access protects them (docs/PLAN.md §5).
+  "workers_dev": false,
+  "preview_urls": false,
+  "assets": {
+    "binding": "ASSETS",
+    // Admin, API and media must always reach the Worker (auth + headers), never a static file.
+    "run_worker_first": ["/admin", "/admin/*", "/api/*", "/media/*"]
+  },
+  "observability": { "enabled": true, "head_sampling_rate": 1 },
+  "version_metadata": { "binding": "CF_VERSION_METADATA" },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "omt",
+      // Placeholder until stage 1 provisioning (scripts/provision.sh writes the real id).
+      "database_id": "00000000-0000-4000-8000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "omt-media" }],
+  "ratelimits": [
+    { "name": "BEACON_RL", "namespace_id": "1001", "simple": { "limit": 60, "period": 60 } }
+  ],
+  "vars": {
+    // Cloudflare Access team domain, e.g. "gabriel.cloudflareaccess.com", and the app AUD tag.
+    // Empty = admin is locked (fail closed) everywhere except `astro dev` on localhost.
+    "ACCESS_TEAM_DOMAIN": "",
+    "ACCESS_AUD": ""
+  }
+}

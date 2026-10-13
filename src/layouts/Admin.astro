@@ -1,0 +1,47 @@
+---
+/**
+ * Private admin shell (English only, by decision — docs/PLAN.md §4.1).
+ * Reaching this layout means middleware already verified Cloudflare Access.
+ */
+import "../styles/global.css";
+import "../styles/admin.css";
+
+interface Props {
+  title: string;
+  active: "dashboard" | "posts" | "settings";
+}
+const { title, active } = Astro.props;
+const email = Astro.locals.adminEmail ?? "";
+const nav = [
+  { id: "dashboard", href: "/admin", label: "Dashboard" },
+  { id: "posts", href: "/admin/posts", label: "Posts" },
+  { id: "settings", href: "/admin/settings", label: "Settings" },
+] as const;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>{title} · admin · onemorething.</title>
+  </head>
+  <body class="admin">
+    <header class="admin-header">
+      <a href="/admin" class="admin-mark">onemorething<span aria-hidden="true">.</span> <span class="tag">admin</span></a>
+      <nav aria-label="Admin">
+        {nav.map((n) => <a href={n.href} aria-current={active === n.id ? "page" : undefined}>{n.label}</a>)}
+        <a href="/" target="_blank" rel="noopener">View site ↗</a>
+      </nav>
+      <span class="who">{email}</span>
+    </header>
+    <main class="admin-main">
+      <slot />
+    </main>
+    <script>
+      import "../scripts/admin";
+    </script>
+  </body>
+</html>
