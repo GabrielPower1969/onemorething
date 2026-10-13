@@ -47,7 +47,6 @@ export const zh: Messages = {
     workHeading: "作品与经历",
     writingHeading: "文字",
     writingAll: "全部文字",
-    featured: "精选",
     stageHeading: "One more thing",
     story1: "1998年1月6日，旧金山，Macworld大会。",
     story2: "乔布斯在主题演讲的最后，留了一个惊喜：苹果重新盈利了。",

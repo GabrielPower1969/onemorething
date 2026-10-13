@@ -1,13 +1,12 @@
 ---
 /**
  * Home = About. Order (docs/PLAN.md §2.2): Overture → Hello → Work → Writing → One more thing → Contact.
- * Only D1-backed parts (Writing, featured video) can be missing; the page renders without D1.
+ * Only the D1-backed Writing list can be missing; the page renders without D1.
  */
 import Base from "../layouts/Base.astro";
 import TypeLine from "../components/TypeLine.astro";
 import WorkList from "../components/WorkList.astro";
 import PostList from "../components/PostList.astro";
-import VideoFacade from "../components/VideoFacade.astro";
 import Icon from "../components/Icon.astro";
 import { SITE, SOCIAL, FEATURES } from "../config/site";
 import { localePath, plain, rich, useT, type Locale } from "../i18n";
@@ -19,7 +18,7 @@ interface Props {
 }
 const { lang } = Astro.props;
 const t = useT(lang);
-const { latest, featured, featuredLang, publishedCount } = await loadHome(lang);
+const { latest, publishedCount } = await loadHome(lang);
 const socials = SOCIAL.filter((s) => s.url);
 const storyKeys = ["home.story1", "home.story2", "home.story3", "home.story4"] as const;
 ---
@@ -50,25 +49,15 @@ const storyKeys = ["home.story1", "home.story2", "home.story3", "home.story4"] a
   </section>
 
   {
-    (latest.length > 0 || featured) && (
+    latest.length > 0 && (
       <section class="writing wrap" data-section="writing" aria-labelledby="writing-h" data-reveal>
         <div class="section-head">
           <h2 id="writing-h" class="meta section-label">{t("home.writingHeading")}</h2>
-          {latest.length > 0 && (
-            <a class="all u" href={localePath(lang, "/writing")}>
-              {t("home.writingAll")} <Icon name="arrow-right" size={16} />
-            </a>
-          )}
+          <a class="all u" href={localePath(lang, "/writing")}>
+            {t("home.writingAll")} <Icon name="arrow-right" size={16} />
+          </a>
         </div>
         <PostList lang={lang} items={latest} />
-        {featured && FEATURES.featuredVideo && (
-          <figure class="featured" lang={featuredLang === lang ? undefined : "en"}>
-            <VideoFacade youtubeId={featured.youtube_id} title={featured.title} coverKey={featured.cover_key} lang={featuredLang} />
-            <figcaption class="meta">
-              {useT(featuredLang)("home.featured")} · {featured.title}
-            </figcaption>
-          </figure>
-        )}
       </section>
     )
   }
@@ -208,16 +197,6 @@ const storyKeys = ["home.story1", "home.story2", "home.story3", "home.story4"] a
     gap: 6px;
     font-size: var(--t-ui);
     min-height: 44px;
-  }
-  .featured {
-    margin: var(--s-5) auto 0;
-    max-width: 960px;
-    display: flex;
-    flex-direction: column;
-    gap: var(--s-2);
-  }
-  .featured figcaption {
-    text-align: center;
   }
 
   .stage {

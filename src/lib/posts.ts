@@ -220,29 +220,3 @@ export async function savePost(db: D1Database, id: string | null, input: PostInp
   await db.batch(stmts);
   return postId;
 }
-
-// ---------------------------------------------------------------- settings
-
-export type FeaturedVideo = { youtube_id: string; title: string } | null;
-
-export async function getSetting<T>(db: D1Database, key: string): Promise<T | null> {
-  const row = await db.prepare(`SELECT value FROM settings WHERE key = ?`).bind(key).first<{ value: string }>();
-  if (!row) return null;
-  try {
-    return JSON.parse(row.value) as T;
-  } catch {
-    return null;
-  }
-}
-
-export async function setSetting(db: D1Database, key: string, value: unknown): Promise<void> {
-  await db
-    .prepare(`INSERT INTO settings (key, value) VALUES (?1, ?2) ON CONFLICT(key) DO UPDATE SET value = ?2`)
-    .bind(key, JSON.stringify(value))
-    .run();
-}
-
-export async function getFeaturedVideo(db: D1Database, lang: Locale): Promise<FeaturedVideo> {
-  const all = await getSetting<Partial<Record<Locale, FeaturedVideo>>>(db, "featured_video");
-  return all?.[lang] ?? all?.en ?? null;
-}

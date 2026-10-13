@@ -1,6 +1,6 @@
 # onemorething.today — v1 Plan
 
-Status: **r2** · 2026-10-13 · owner: Gabriel Chen · author: Claude
+Status: **r3** · 2026-10-13 · owner: Gabriel Chen · author: Claude
 r1 was reviewed by four independent reviewers (design/UX, architecture/security,
 i18n/SEO/analytics, release/QA). Their findings are folded in below; the review log is §14.
 
@@ -17,7 +17,7 @@ A personal homepage, portfolio and blog for Gabriel Chen at **https://onemorethi
 - **Languages:** English first at `/`, Chinese at `/zh/`, toggle top right. Every public string
   lives in `src/i18n/{en,zh}.ts`; build gates fail on any missing key or hard-coded string.
 - **Owner tools:** private `/admin` to write posts, publish video/audio posts by link with a cover,
-  set the featured video, and read traffic.
+  and read traffic.
 - **Gates:** Figma design → local preview + screenshots → **Gabriel approves** → staged launch.
 
 Non-goals for v1: comments, newsletter, search, multi-author, self-hosted media files, Bilibili
@@ -70,7 +70,7 @@ Esc closes, background `inert`, focus returns on close). All tap targets ≥ 44�
 1. **Overture** (100svh): `One more thing` + breathing dot (the period). Types in ≤ 1.5 s.
 2. **Hello**: `I'm *Gabriel Chen*.` · one-line role · short bio. Fades in, not typed.
 3. **Work**: Flowgt · loyalasabook · Trimble · CITANZ · The Muse — name, role · years, one line, ↗ always visible.
-4. **Writing**: latest 3 posts (text rows) + featured video (YouTube facade). Hidden if no posts.
+4. **Writing**: latest 3 posts (text rows) + "All writing". Hidden if no posts. (r3: no featured video — Gabriel, "too complex".)
 5. **One more thing** — a hard-edged black stage, five typed lines, sources disclosure.
    Placed at the end on purpose: the best part comes last, and line 5 hands off to Contact.
 6. **Contact**: `Say hello.` · `gabriel@onemorething.today` (mailto + copy with aria-live feedback) · icons.
@@ -180,7 +180,7 @@ post_i18n(post_id TEXT REFERENCES posts(id) ON DELETE CASCADE, lang TEXT CHECK(l
       title TEXT, summary TEXT, body_md TEXT, body_html TEXT, sanitizer_version INTEGER, cover_alt TEXT,
       PRIMARY KEY (post_id, lang))
 media(key TEXT PK, content_type TEXT, bytes INTEGER, width INTEGER, height INTEGER, created_at TEXT)
-settings(key TEXT PK, value TEXT /*JSON*/)        -- featured_video: {en, zh}
+settings(key TEXT PK, value TEXT /*JSON*/)        -- reserved; unused since r3
 events(id INTEGER PK, ts INTEGER, type TEXT, path TEXT, lang TEXT, ref TEXT, campaign TEXT,
        target TEXT, section TEXT, country TEXT, device TEXT, app TEXT, visitor TEXT, version TEXT)
 daily_salt(day TEXT PK, salt TEXT)               -- rows older than 48 h deleted
@@ -196,7 +196,7 @@ Dashboard (visitor-days, visits, engaged visits, Work reach, top pages, referrer
 clicks, EN/ZH split) · Posts list · Editor (Words/Video/Audio; EN | 中 tabs with a completeness
 dot; markdown with live sanitized preview; slug; cover upload; YouTube or audio URL with instant
 validation; publish date; drafts saved to D1 every 10 s, `localStorage` as crash buffer; refuses
-to publish a language without title, summary and cover alt) · Settings (featured video per language).
+to publish a language without title, summary and cover alt).
 Soft delete = `status='archived'` (public URL returns 410).
 
 ---
@@ -316,3 +316,6 @@ opt-out + GPC + retention; metric definitions; ZH typography rules.
 Release/QA: personal data scrubbed from this file; previews are public → approval happens on
 localhost; 灰度 = staged audiences; F2/F3 corrected; CI = checks only; tests added; backups fixed.
 Rejected: none outright. Deferred to v1.1: edge caching, Bilibili, OG images per post, WAE sink.
+
+r2 → r3 (Gabriel's preview feedback, 2026-10-13): Home was too complex — the featured video block is
+removed from Home, and with it the admin Settings page and `/api/admin/settings`. Video posts stay.

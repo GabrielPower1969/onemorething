@@ -76,6 +76,6 @@ Code: MIT. Words, images and design: © Gabriel Chen, all rights reserved.
 - **技术栈**：Astro 7 + Cloudflare Workers，D1 存文章和统计，R2 存封面，`/admin` 后台由 Cloudflare Access 保护。
 - **本地运行**：`npm install` → `npm run db:migrate:local` → `npm run dev`，打开 http://localhost:4321。也可以 `docker compose up -d`。
 - **文案与多语言**：所有对外文字都在 `src/i18n/en.ts` 和 `src/i18n/zh.ts`，缺一个键就编译失败；所有外链集中在 `src/config/site.ts`。
-- **后台**：`/admin` 写文章（文字 / YouTube 视频 / 音频链接，带封面）、设置首页精选视频、看流量（无 Cookie 的第一方统计）。
+- **后台**：`/admin` 写文章（文字 / YouTube 视频 / 音频链接，带封面）、看流量（无 Cookie 的第一方统计）。
 - **上线**：按 `docs/LAUNCH.md` 分阶段灰度（仅本人 → 朋友 → 公开），每次发布记在 `docs/RELEASES.md`。
 - **备份**：`scripts/backup.sh` 导出 D1 和全部封面；恢复 = 导入 SQL + 放回封面 + 重新部署。

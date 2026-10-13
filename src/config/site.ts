@@ -42,8 +42,6 @@ export const WORK: { id: WorkId; url: string; since: string; until?: string }[] 
 export const FEATURES = {
   /** Show "Writing" in the header once at least this many posts are published (0 = always). */
   writingInHeaderMinPosts: 1,
-  /** Featured video block on Home (needs a featured video set in /admin). */
-  featuredVideo: true,
   /** First-party analytics beacon. */
   analytics: true,
 } as const;

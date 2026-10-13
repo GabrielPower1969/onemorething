@@ -8,14 +8,13 @@ import "../styles/admin.css";
 
 interface Props {
   title: string;
-  active: "dashboard" | "posts" | "settings";
+  active: "dashboard" | "posts";
 }
 const { title, active } = Astro.props;
 const email = Astro.locals.adminEmail ?? "";
 const nav = [
   { id: "dashboard", href: "/admin", label: "Dashboard" },
   { id: "posts", href: "/admin/posts", label: "Posts" },
-  { id: "settings", href: "/admin/settings", label: "Settings" },
 ] as const;
 ---
 

@@ -1,4 +1,4 @@
-/** Admin behaviour: chart tooltip, post editor, settings. English-only UI by design. */
+/** Admin behaviour: chart tooltip and post editor. English-only UI by design. */
 import { parseYouTubeId } from "../lib/youtube";
 import { slugify } from "../lib/slug";
 import type { Post } from "../lib/posts";
@@ -350,22 +350,5 @@ function nzLocalToIso(local: string): string {
   return new Date(guess.getTime() - nzOffsetMin(guess) * 60_000).toISOString();
 }
 
-// ---------------------------------------------------------------- settings
-function initSettings() {
-  const form = $<HTMLFormElement>("[data-settings]");
-  if (!form) return;
-  const state = $("[data-save-state]", form)!;
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const v = (n: string) => (form.elements.namedItem(n) as HTMLInputElement).value;
-    state.textContent = "Saving…";
-    const { status, data } = await api<{ error?: string; lang?: string }>("PUT", "/api/admin/settings", {
-      featured: { en: { youtube: v("en.youtube"), title: v("en.title") }, zh: { youtube: v("zh.youtube"), title: v("zh.title") } },
-    });
-    state.textContent = status === 200 ? "Saved." : `Not saved: ${data.error ?? status}${data.lang ? ` (${data.lang})` : ""}`;
-  });
-}
-
 initChart();
 initEditor();
-initSettings();

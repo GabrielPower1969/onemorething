@@ -444,22 +444,6 @@
   gap: 8px;
   flex-wrap: wrap;
 }
-.settings {
-  max-width: 640px;
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-}
-.box {
-  border: 1px solid var(--hair);
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-.legend {
-  padding: 0 6px;
-}
 .foot-note {
   margin-top: 40px;
 }

@@ -94,7 +94,3 @@ for (const p of posts) {
   const { id } = await call("POST", "/api/admin/posts", p);
   console.log(`post ${p.slug} → ${id}`);
 }
-await call("PUT", "/api/admin/settings", {
-  featured: { en: { youtube: "https://youtu.be/UF8uR6Z6KLc", title: "Sample: Steve Jobs, Stanford 2005" }, zh: { youtube: "", title: "" } },
-});
-console.log("featured video set (sample)");

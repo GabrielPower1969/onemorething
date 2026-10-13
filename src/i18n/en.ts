@@ -48,7 +48,6 @@ export const en = {
     workHeading: "Work",
     writingHeading: "Writing",
     writingAll: "All writing",
-    featured: "Featured",
     stageHeading: "One more thing",
     story1: "January 6, 1998. Macworld Expo, San Francisco.",
     story2: "Steve Jobs ended his keynote with a surprise: Apple was profitable again.",
