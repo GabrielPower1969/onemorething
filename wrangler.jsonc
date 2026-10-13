@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "onemorething",
-  "main": "@astrojs/cloudflare/entrypoints/server",
+  "main": "./src/worker.ts",
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat"],
   // Never expose *.workers.dev; preview URLs stay off until Access protects them (docs/PLAN.md §5).
@@ -14,8 +14,9 @@
   ],
   "assets": {
     "binding": "ASSETS",
-    // Admin, API and media must always reach the Worker (auth + headers), never a static file.
-    "run_worker_first": ["/admin", "/admin/*", "/api/*", "/media/*"]
+    // Every request reaches the Worker first (src/worker.ts): canonical redirects and security
+    // headers then apply to static files too, and admin/API/media can never be served as a file.
+    "run_worker_first": true
   },
   "observability": { "enabled": true, "head_sampling_rate": 1 },
   "version_metadata": { "binding": "CF_VERSION_METADATA" },
@@ -30,7 +31,8 @@
   ],
   "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "omt-media" }],
   "ratelimits": [
-    { "name": "BEACON_RL", "namespace_id": "1001", "simple": { "limit": 60, "period": 60 } }
+    { "name": "BEACON_RL", "namespace_id": "1001", "simple": { "limit": 60, "period": 60 } },
+    { "name": "ADMIN_RL", "namespace_id": "1002", "simple": { "limit": 120, "period": 60 } }
   ],
   "vars": {
     // Cloudflare Access team domain, e.g. "gabriel.cloudflareaccess.com", and the app AUD tag.

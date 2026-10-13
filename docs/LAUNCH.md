@@ -62,6 +62,7 @@ npx wrangler d1 time-travel info omt          # record the bookmark if a migrati
 npx wrangler d1 migrations apply omt --remote # additive only
 npm run build && npx wrangler versions upload # then smoke the version
 npx wrangler versions deploy                  # 100 %; percentage splits only once traffic exists
+npm run security:check                        # live headers, redirects, security.txt, admin lock
 ```
 Rollback: `npx wrangler rollback <previous-version-id>`. Data: `npx wrangler d1 time-travel restore omt --bookmark <id>`.
 

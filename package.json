@@ -18,9 +18,11 @@
     "i18n:check": "node --no-warnings=ExperimentalWarning scripts/i18n-check.mjs",
     "test": "vitest run",
     "e2e": "playwright test",
-    "check": "npm run i18n:check && npm run typecheck && npm run test",
+    "check": "npm run i18n:check && npm run hygiene && npm run typecheck && npm run test",
     "db:migrate:local": "wrangler d1 migrations apply omt --local",
-    "db:seed:local": "wrangler d1 execute omt --local --file=scripts/seed.local.sql"
+    "db:seed:local": "wrangler d1 execute omt --local --file=scripts/seed.local.sql",
+    "hygiene": "node scripts/hygiene.mjs",
+    "security:check": "node scripts/security-check.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "14.3.4",

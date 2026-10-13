@@ -53,6 +53,21 @@ test("HTML opts out of edge rewriting (no injected third-party scripts)", async 
   expect(external).toEqual([]);
 });
 
+test("security headers on pages and static files alike", async ({ page }) => {
+  const pageRes = await page.goto("/");
+  const ph = pageRes!.headers();
+  expect(ph["x-frame-options"]).toBe("DENY");
+  expect(ph["cross-origin-opener-policy"]).toBe("same-origin");
+  expect(ph["content-security-policy"]).toContain("upgrade-insecure-requests");
+  const fileRes = await page.goto("/favicon.svg");
+  const fh = fileRes!.headers();
+  expect(fh["x-frame-options"]).toBe("DENY");
+  expect(fh["content-security-policy"]).toMatch(/^default-src 'none'/);
+  const sec = await page.goto("/.well-known/security.txt");
+  expect(sec!.status()).toBe(200);
+  expect(await sec!.text()).toMatch(/^Contact: mailto:/m);
+});
+
 test("head: canonical, reciprocal hreflang and JSON-LD", async ({ page }) => {
   await page.goto("/zh/");
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://onemorething.today/zh/");

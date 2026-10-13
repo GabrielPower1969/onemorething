@@ -16,6 +16,8 @@ architecture change.
 | Production build + local run | `npm run build && npx astro preview --port 4322` |
 | Binding types after editing wrangler.jsonc | `npx wrangler types` |
 | Review screenshots | `node scripts/shoot.mjs <baseUrl> <outDir> [paths…]` |
+| Secret / personal-data scan | `npm run hygiene` (`--history` scans all commits) |
+| Live security check after a deploy | `npm run security:check` (`OMT_RESOLVE=<ip>` if local DNS is stale) |
 
 ## Directory map
 
@@ -29,7 +31,9 @@ src/views/*.astro         page bodies shared by EN and ZH routes
 src/pages/**              thin route files; src/pages/zh/* also import styles/zh-fonts.css
 src/lib/                  server logic: posts (D1), markdown (sanitizer), access (JWT), analytics, stats, media (R2)
 src/scripts/              client JS: site.ts (public), typeon.ts, track.ts, admin.ts, head-inline.js
-src/middleware.ts         admin lock, security headers, noindex off-production, www→apex
+src/worker.ts             Worker entry: every request (incl. static files) → canonical redirect → Astro → secure()
+src/lib/secure.ts         the ONLY place for security headers, http→https/www→apex, caching rules
+src/middleware.ts         admin lock (Access JWT + admin rate limit)
 migrations/               D1 schema (additive within a release)
 scripts/                  i18n-check, copy-fonts, seed-local, shoot, backup, provision, make-icons
 tests/unit, tests/e2e     vitest / Playwright (+ axe, i18n leak crawl)
@@ -49,9 +53,10 @@ tests/unit, tests/e2e     vitest / Playwright (+ axe, i18n leak crawl)
 6. **Nothing from Google loads before a click**: YouTube posters are copied into R2; the player is
    youtube-nocookie.com after the visitor presses play.
 7. **CSP stays strict**: no inline `style=""` attributes, no new inline scripts unless hashed in
-   `astro.config.mjs` like `head-inline.js`. Middleware appends to Astro's CSP header, never replaces it.
+   `astro.config.mjs` like `head-inline.js`. `secure()` appends to Astro's CSP header, never replaces it.
    Every HTML response carries `Cache-Control: … no-transform` so Cloudflare's edge never injects
-   scripts (its Web Analytics auto-setup is on by default for proxied zones).
+   scripts (its Web Analytics auto-setup is on by default for proxied zones). Headers are set only in
+   `src/lib/secure.ts`; `run_worker_first` stays `true`. Full list and references: `docs/SECURITY.md`.
 8. **Analytics**: only allowlisted values reach D1 (`parseEvent`); the `events` table has no
    secondary indexes; salts are deleted after 48 h. Metric definitions: `docs/METRICS.md`.
 9. **Migrations are additive** within a release (expand → contract across two releases).
