@@ -11,7 +11,7 @@ export const zh: Messages = {
     titleHome: "陈广宇 Gabriel Chen — One more thing",
     titleTemplate: "{title} — 陈广宇",
     descriptionHome:
-      "陈广宇（Gabriel Chen），Trimble 系统工程师，Flowgt 创始人，现居新西兰基督城。这里是他的作品、文字，和 one more thing。",
+      "陈广宇（Gabriel Chen），Trimble 系统工程师，Flowgt 的打造者，现居新西兰基督城。这里是他的作品、文字，和 one more thing。",
     descriptionWriting: "陈广宇的文字、演讲与录音。",
     ogImageAlt: "One more thing. — onemorething.today",
     languageName: "中文",
@@ -41,7 +41,7 @@ export const zh: Messages = {
   home: {
     overture: "One more thing.",
     helloTitle: "我是陈广宇。",
-    helloLead: "Trimble系统工程师，Flowgt创始人，现居新西兰基督城。",
+    helloLead: "Trimble系统工程师，Flowgt的打造者，现居新西兰基督城。",
     helloBody:
       "我做软件，也做软件背后的社区。我参与运营新西兰华人IT协会（CITANZ）基督城分会，也在黑客松担任导师。来新西兰之前，我在上海做了近十年系统研发——哔哩哔哩、中芯国际等。坎特伯雷大学应用数据科学硕士。我也画画，用马克笔。",
     workHeading: "作品与经历",
@@ -62,7 +62,7 @@ export const zh: Messages = {
   work: {
     flowgt: {
       name: "Flowgt",
-      role: "创始人兼架构师",
+      role: "打造者",
       line: "为新西兰企业提供AI原生的技术人才：全职、合同与整支团队。",
     },
     loyal: {

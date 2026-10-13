@@ -32,9 +32,9 @@ export type WorkId = "flowgt" | "loyal" | "trimble" | "citanz" | "muse";
 
 /** Portfolio rows on Home, in display order. */
 export const WORK: { id: WorkId; url: string; since: string; until?: string }[] = [
-  { id: "flowgt", url: "https://flowgt.co.nz", since: "2025" },
-  { id: "loyal", url: "https://loyalasabook.com", since: "2026" },
   { id: "trimble", url: "https://www.trimble.com", since: "2025" },
+  { id: "loyal", url: "https://loyalasabook.com", since: "2026" },
+  { id: "flowgt", url: "https://flowgt.co.nz", since: "2025" },
   { id: "citanz", url: "https://www.cita.org.nz", since: "2024" },
   { id: "muse", url: "https://themuse.org.nz", since: "" },
 ];

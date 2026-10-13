@@ -50,6 +50,8 @@ tests/unit, tests/e2e     vitest / Playwright (+ axe, i18n leak crawl)
    youtube-nocookie.com after the visitor presses play.
 7. **CSP stays strict**: no inline `style=""` attributes, no new inline scripts unless hashed in
    `astro.config.mjs` like `head-inline.js`. Middleware appends to Astro's CSP header, never replaces it.
+   Every HTML response carries `Cache-Control: … no-transform` so Cloudflare's edge never injects
+   scripts (its Web Analytics auto-setup is on by default for proxied zones).
 8. **Analytics**: only allowlisted values reach D1 (`parseEvent`); the `events` table has no
    secondary indexes; salts are deleted after 48 h. Metric definitions: `docs/METRICS.md`.
 9. **Migrations are additive** within a release (expand → contract across two releases).

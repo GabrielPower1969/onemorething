@@ -12,7 +12,7 @@ export const en = {
     titleHome: "Gabriel Chen — One more thing",
     titleTemplate: "{title} — Gabriel Chen",
     descriptionHome:
-      "Gabriel Chen is a systems engineer at Trimble and the founder of Flowgt, in Christchurch, New Zealand. Work, writing and one more thing.",
+      "Gabriel Chen is a systems engineer at Trimble and the builder of Flowgt, in Christchurch, New Zealand. Work, writing and one more thing.",
     descriptionWriting: "Notes, talks and recordings by Gabriel Chen.",
     ogImageAlt: "One more thing. — onemorething.today",
     languageName: "English",
@@ -42,7 +42,7 @@ export const en = {
   home: {
     overture: "One more thing.",
     helloTitle: "I’m *Gabriel Chen*.",
-    helloLead: "Systems engineer at Trimble. Founder of Flowgt. Christchurch, New Zealand.",
+    helloLead: "Systems engineer at Trimble. Builder of Flowgt. Christchurch, New Zealand.",
     helloBody:
       "I build software, and the communities around it. I help run the Christchurch branch of CITANZ and mentor at hackathons. Before New Zealand I spent nearly a decade building systems in Shanghai — at Bilibili, SMIC and others. Master of Applied Data Science, University of Canterbury. I also draw, with marker pens.",
     workHeading: "Work",
@@ -63,7 +63,7 @@ export const en = {
   work: {
     flowgt: {
       name: "Flowgt",
-      role: "Founder & architect",
+      role: "The builder",
       line: "AI-native talent for New Zealand companies: permanent roles, contracts and whole teams.",
     },
     loyal: {

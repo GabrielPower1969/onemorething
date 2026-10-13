@@ -45,6 +45,13 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
   if (isProductionHost(url)) h.set("strict-transport-security", "max-age=31536000; includeSubDomains");
   if (!isProductionHost(url) || isAdmin) h.set("x-robots-tag", "noindex, nofollow");
-  if (isAdmin || url.pathname.startsWith("/api/")) h.set("cache-control", "private, no-store");
+  if (isAdmin || url.pathname.startsWith("/api/")) h.set("cache-control", "private, no-store, no-transform");
+  // Cloudflare edits proxied HTML unless told not to (it auto-injects the Web Analytics beacon, which our
+  // CSP blocks and our privacy notice rules out). "no-transform" opts every HTML page out of that.
+  if ((h.get("content-type") ?? "").includes("text/html")) {
+    const cc = h.get("cache-control");
+    if (!cc) h.set("cache-control", "public, max-age=0, must-revalidate, no-transform");
+    else if (!/no-transform/i.test(cc)) h.set("cache-control", `${cc}, no-transform`);
+  }
   return response;
 });

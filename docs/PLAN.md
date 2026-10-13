@@ -1,6 +1,6 @@
 # onemorething.today — v1 Plan
 
-Status: **r3** · 2026-10-13 · owner: Gabriel Chen · author: Claude
+Status: **r3 · launched 2026-10-13 (v1.0.1)** — see docs/RELEASES.md · owner: Gabriel Chen · author: Claude
 r1 was reviewed by four independent reviewers (design/UX, architecture/security,
 i18n/SEO/analytics, release/QA). Their findings are folded in below; the review log is §14.
 
@@ -319,3 +319,5 @@ Rejected: none outright. Deferred to v1.1: edge caching, Bilibili, OG images per
 
 r2 → r3 (Gabriel's preview feedback, 2026-10-13): Home was too complex — the featured video block is
 removed from Home, and with it the admin Settings page and `/api/admin/settings`. Video posts stay.
+Then: work order Trimble → loyalasabook → Flowgt → CITANZ → The Muse; Flowgt role "The builder";
+Gabriel approved launch directly (stage 2, friends-only, skipped at his request).

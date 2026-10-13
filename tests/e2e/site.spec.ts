@@ -44,6 +44,15 @@ test("language toggle round-trips and sets lang attributes", async ({ page, isMo
   await expect(page).toHaveURL(/\/$/);
 });
 
+test("HTML opts out of edge rewriting (no injected third-party scripts)", async ({ page }) => {
+  const res = await page.goto("/");
+  expect(res?.headers()["cache-control"] ?? "").toContain("no-transform");
+  const external = await page.locator("script[src]").evaluateAll((els) =>
+    els.map((e) => (e as HTMLScriptElement).src).filter((src) => new URL(src).origin !== location.origin),
+  );
+  expect(external).toEqual([]);
+});
+
 test("head: canonical, reciprocal hreflang and JSON-LD", async ({ page }) => {
   await page.goto("/zh/");
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://onemorething.today/zh/");

@@ -30,7 +30,6 @@ const person = {
   url: SITE.origin,
   email: `mailto:${SITE.email}`,
   worksFor: { "@type": "Organization", name: "Trimble", url: "https://www.trimble.com" },
-  founder: { "@type": "Organization", name: "Flowgt", url: "https://flowgt.co.nz" },
   sameAs: SOCIAL.filter((s) => s.url).map((s) => s.url),
 };
 const graph: Record<string, unknown>[] = [

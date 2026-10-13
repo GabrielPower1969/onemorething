@@ -7,6 +7,11 @@
   // Never expose *.workers.dev; preview URLs stay off until Access protects them (docs/PLAN.md §5).
   "workers_dev": false,
   "preview_urls": false,
+  // Custom domains: wrangler creates the DNS records and certificates. www 301s to the apex (middleware).
+  "routes": [
+    { "pattern": "onemorething.today", "custom_domain": true },
+    { "pattern": "www.onemorething.today", "custom_domain": true }
+  ],
   "assets": {
     "binding": "ASSETS",
     // Admin, API and media must always reach the Worker (auth + headers), never a static file.
@@ -19,7 +24,7 @@
       "binding": "DB",
       "database_name": "omt",
       // Placeholder until stage 1 provisioning (scripts/provision.sh writes the real id).
-      "database_id": "00000000-0000-4000-8000-000000000000",
+      "database_id": "5f7c7457-5249-4abc-8b87-d8afcf9e8d86",
       "migrations_dir": "migrations"
     }
   ],
