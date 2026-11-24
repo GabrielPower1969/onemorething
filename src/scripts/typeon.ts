@@ -5,6 +5,8 @@
  * (`.t-v` + `.t-h`), so the line's full text stays in the DOM and its layout never moves.
  * Runs only when <html> has .js-typing (first view per session, no reduced motion).
  */
+import { initDotWave } from "./dotwave";
+
 const SESSION_KEY = "omt_typed";
 const PAUSE_AFTER = /[.,;:!?—，。、：；！？]$/u;
 const CJK = /\p{Script=Han}/u;
@@ -50,6 +52,9 @@ class Typist {
   skip() {
     this.skipped = true;
   }
+  get wasSkipped() {
+    return this.skipped;
+  }
 
   async type(line: HTMLElement) {
     const units = prepare(line);
@@ -93,6 +98,7 @@ export function initTypeOn() {
   const overture = [...document.querySelectorAll<HTMLElement>('[data-typeon="overture"]')];
   const stage = [...document.querySelectorAll<HTMLElement>('[data-typeon="stage"]')];
   const dot = document.querySelector<HTMLElement>(".breath");
+  const dotWave = initDotWave();
 
   if (!root.classList.contains("js-typing")) {
     [...overture, ...stage].forEach(finish);
@@ -111,6 +117,8 @@ export function initTypeOn() {
     for (const line of overture) await intro.type(line);
     dot?.classList.add("is-on");
     overture.forEach((l) => fadeCaret(l, 1200));
+    // The encore (src/scripts/dotwave.ts) plays only if the visitor let the typing finish.
+    if (!intro.wasSkipped) void dotWave.play();
     try {
       sessionStorage.setItem(SESSION_KEY, "1");
     } catch {}

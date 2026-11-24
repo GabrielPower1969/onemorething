@@ -123,6 +123,7 @@ const storyKeys = ["home.story1", "home.story2", "home.story3", "home.story4"] a
     padding: 72px var(--gutter);
   }
   .overture-line {
+    position: relative;
     font-size: var(--t-display);
     line-height: 1.1;
     letter-spacing: -0.02em;
@@ -132,6 +133,7 @@ const storyKeys = ["home.story1", "home.story2", "home.story3", "home.story4"] a
     align-items: baseline;
   }
   .breath {
+    cursor: pointer;
     display: inline-block;
     width: 0.15em;
     height: 0.15em;
@@ -158,6 +160,33 @@ const storyKeys = ["home.story1", "home.story2", "home.story3", "home.story4"] a
     .breath.is-breathing {
       animation: none;
     }
+  }
+
+  /* The encore (src/scripts/dotwave.ts): letters, the growing ring and the o / O stand-ins are made by script. */
+  .overture-line.dw-playing .breath {
+    animation: none;
+  }
+  .overture-line :global(.dw-t) {
+    display: inline-block;
+    white-space: pre; /* keep the spaces: one letter per box */
+    transform-origin: 50% 100%;
+  }
+  .overture-line :global(.dw-ghost) {
+    position: absolute;
+    display: inline-block;
+    white-space: pre;
+    pointer-events: none;
+    visibility: hidden;
+  }
+  .overture-line :global(.dw-ring) {
+    position: absolute;
+    left: 0;
+    top: 0;
+    box-sizing: border-box;
+    border: 0 solid currentColor;
+    border-radius: 50%;
+    pointer-events: none;
+    visibility: hidden;
   }
 
   .hello {
