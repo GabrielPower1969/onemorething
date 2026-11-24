@@ -13,13 +13,14 @@ export const SITE = {
   },
 } as const;
 
-export type SocialId = "github" | "linkedin" | "youtube";
+export type SocialId = "github" | "linkedin" | "youtube" | "bilibili";
 
 /** Profiles of Gabriel himself (also used for JSON-LD sameAs). Empty url = hidden. */
 export const SOCIAL: { id: SocialId; url: string; header: boolean }[] = [
   { id: "github", url: "https://github.com/GabrielPower1969", header: true },
   { id: "linkedin", url: "https://www.linkedin.com/in/gabriel-chen-digimon-programer", header: true },
-  { id: "youtube", url: "", header: false },
+  { id: "youtube", url: "https://www.youtube.com/@OneMoreGab", header: true },
+  { id: "bilibili", url: "https://space.bilibili.com/109002669", header: true },
 ];
 
 /** Text links in the header, in order. */

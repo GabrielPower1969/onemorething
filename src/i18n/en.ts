@@ -33,6 +33,7 @@ export const en = {
     github: "GitHub",
     linkedin: "LinkedIn",
     youtube: "YouTube",
+    bilibili: "Bilibili",
     email: "Email",
   },
   person: {

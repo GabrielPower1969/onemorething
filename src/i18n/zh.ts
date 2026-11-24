@@ -32,6 +32,7 @@ export const zh: Messages = {
     github: "GitHub",
     linkedin: "领英",
     youtube: "YouTube",
+    bilibili: "哔哩哔哩",
     email: "邮件",
   },
   person: {
